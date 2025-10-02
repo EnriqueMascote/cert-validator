@@ -45,6 +45,15 @@ export const translations = {
     language: {
       spanish: 'Español',
       english: 'English'
+    },
+    converter: {
+      title: '🔄 Convertir a PEM',
+      description: 'Combine su certificado .cer y llave .key en un solo archivo .pem',
+      convertButton: 'Convertir a PEM',
+      converting: 'Convirtiendo...',
+      downloadButton: 'Descargar archivo PEM',
+      success: '✅ Conversión exitosa! El archivo PEM está listo para descargar.',
+      includeChain: 'Incluir cadena de certificados completa'
     }
   },
   en: {
@@ -93,6 +102,15 @@ export const translations = {
     language: {
       spanish: 'Español',
       english: 'English'
+    },
+    converter: {
+      title: '🔄 Convert to PEM',
+      description: 'Combine your .cer certificate and .key key into a single .pem file',
+      convertButton: 'Convert to PEM',
+      converting: 'Converting...',
+      downloadButton: 'Download PEM file',
+      success: '✅ Conversion successful! PEM file is ready to download.',
+      includeChain: 'Include full certificate chain'
     }
   }
 };
