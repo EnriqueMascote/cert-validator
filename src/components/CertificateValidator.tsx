@@ -23,6 +23,8 @@ const CertificateValidator = () => {
   const [password, setPassword] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
   const [result, setResult] = useState<ValidationResult | null>(null);
+  const [converting, setConverting] = useState<boolean>(false);
+  const [pemData, setPemData] = useState<string | null>(null);
 
   const { language, toggleLanguage, t } = useLanguage();
   const { theme, toggleTheme } = useTheme();
@@ -196,6 +198,105 @@ const CertificateValidator = () => {
     }
   };
 
+  const convertToPEM = async () => {
+    try {
+      setConverting(true);
+      setPemData(null);
+
+      // Validation
+      if (!certFile) {
+        setResult({
+          success: false,
+          message: `${t.errors.missingCert}\n${t.errors.missingCertDesc}`
+        });
+        return;
+      }
+
+      if (!keyFile) {
+        setResult({
+          success: false,
+          message: `${t.errors.missingKey}\n${t.errors.missingKeyDesc}`
+        });
+        return;
+      }
+
+      if (!password) {
+        setResult({
+          success: false,
+          message: `${t.errors.missingPassword}\n${t.errors.missingPasswordDesc}`
+        });
+        return;
+      }
+
+      // Store password in ref for cleanup
+      passwordRef.current = password;
+
+      // Read files
+      const certData = await readFileAsText(certFile);
+      const keyData = await readFileAsText(keyFile);
+
+      // Parse certificate to verify it's valid
+      let certificate;
+      try {
+        certificate = forge.pki.certificateFromPem(certData);
+      } catch (e) {
+        throw new Error(t.errors.invalidCert);
+      }
+
+      // Decrypt private key
+      let privateKey;
+      try {
+        const encryptedKey = forge.pki.encryptedPrivateKeyFromPem(keyData);
+        const decryptedInfo = forge.pki.decryptPrivateKeyInfo(encryptedKey, password);
+        privateKey = forge.pki.privateKeyFromAsn1(decryptedInfo);
+      } catch (e) {
+        try {
+          privateKey = forge.pki.decryptRsaPrivateKey(keyData, password);
+          if (!privateKey) {
+            throw new Error('Decryption failed');
+          }
+        } catch (rsaError) {
+          throw new Error(t.errors.invalidKey);
+        }
+      }
+
+      // Convert private key to PEM format (unencrypted)
+      const privateKeyPem = forge.pki.privateKeyToPem(privateKey);
+
+      // Combine certificate and private key into a single PEM file
+      const combinedPem = `${certData.trim()}\n${privateKeyPem.trim()}\n`;
+
+      setPemData(combinedPem);
+      setResult({
+        success: true,
+        message: t.converter.success
+      });
+
+    } catch (error) {
+      setResult({
+        success: false,
+        message: `${t.errors.validationFailed}: ${(error as Error).message}`
+      });
+    } finally {
+      setConverting(false);
+      secureCleanup();
+    }
+  };
+
+  const downloadPEM = () => {
+    if (!pemData) return;
+
+    const blob = new Blob([pemData], { type: 'application/x-pem-file' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'certificate.pem';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
   const handleCertFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) setCertFile(file);
@@ -272,12 +373,34 @@ const CertificateValidator = () => {
         <button
           className="validate-button"
           onClick={validateCertificate}
-          disabled={loading}
+          disabled={loading || converting}
         >
           {loading ? t.form.validating : t.form.validateButton}
         </button>
 
-        {loading && <div className="loader"></div>}
+        <div className="converter-section">
+          <h2>{t.converter.title}</h2>
+          <p className="converter-description">{t.converter.description}</p>
+
+          <button
+            className="convert-button"
+            onClick={convertToPEM}
+            disabled={loading || converting}
+          >
+            {converting ? t.converter.converting : t.converter.convertButton}
+          </button>
+
+          {pemData && (
+            <button
+              className="download-button"
+              onClick={downloadPEM}
+            >
+              📥 {t.converter.downloadButton}
+            </button>
+          )}
+        </div>
+
+        {(loading || converting) && <div className="loader"></div>}
 
         {result && (
           <div className={`result ${result.success ? 'success' : 'error'}`}>
