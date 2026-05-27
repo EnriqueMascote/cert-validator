@@ -54,6 +54,32 @@ export const translations = {
       downloadButton: 'Descargar archivo PEM',
       success: '✅ Conversión exitosa! El archivo PEM está listo para descargar.',
       includeChain: 'Incluir cadena de certificados completa'
+    },
+    instructions: {
+      title: '📖 Instrucciones de Uso',
+      step1: '1. Seleccione su archivo de certificado (.cer)',
+      step2: '2. Seleccione su archivo de llave privada (.key)',
+      step3: '3. Ingrese la contraseña de la llave',
+      step4: '4. Valide o convierta a PEM',
+      validate: {
+        title: 'Validar',
+        desc: 'Verifica que el certificado y la llave coincidan'
+      },
+      convert: {
+        title: 'Convertir a PEM',
+        desc: 'Combina ambos archivos en un solo .pem'
+      }
+    },
+    certInfo: {
+      title: 'Información del Certificado',
+      loading: 'Cargando información del certificado...'
+    },
+    alerts: {
+      keyMatch: {
+        title: '¡Certificado y Llave Válidos!',
+        text: 'La llave privada coincide perfectamente con el certificado.',
+        confirmButton: 'Entendido'
+      }
     }
   },
   en: {
@@ -111,6 +137,32 @@ export const translations = {
       downloadButton: 'Download PEM file',
       success: '✅ Conversion successful! PEM file is ready to download.',
       includeChain: 'Include full certificate chain'
+    },
+    instructions: {
+      title: '📖 Usage Instructions',
+      step1: '1. Select your certificate file (.cer)',
+      step2: '2. Select your private key file (.key)',
+      step3: '3. Enter the key password',
+      step4: '4. Validate or convert to PEM',
+      validate: {
+        title: 'Validate',
+        desc: 'Verifies that the certificate and key match'
+      },
+      convert: {
+        title: 'Convert to PEM',
+        desc: 'Combines both files into a single .pem'
+      }
+    },
+    certInfo: {
+      title: 'Certificate Information',
+      loading: 'Loading certificate information...'
+    },
+    alerts: {
+      keyMatch: {
+        title: 'Valid Certificate and Key!',
+        text: 'The private key matches the certificate perfectly.',
+        confirmButton: 'Got it'
+      }
     }
   }
 };
